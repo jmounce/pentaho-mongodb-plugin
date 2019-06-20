@@ -103,3 +103,21 @@ __IntelliJ__
 
 ````
 
+For INFLECTION
+--------------
+This JAR adds SSL support to the MongoDB Output step in the MongoDB plugin
+
+To build:
+
+1. Use this settings.xml file in your Maven home dir: https://github.inflection.net/Inflection/bi/blob/master/Pentaho/pentaho-mongodb-plugin/Maven/settings.xml
+2. Run IntelliJ and run the Maven target: install
+3. New jar will be in your Maven home Repo
+
+To install:
+
+1. Close Spoon/Kettle/Pan
+2. Remove DIR ~/system/karaf/caches
+3. Copy the jar from your Maven home Repo into ~/system/karaf/system/pentaho/pentaho-mongodb-plugin/7.0.0.0-25
+4. Run Spoon
+
+Pre-compiled jar located at: \\pal-inf-01\Common\Software\Pentaho Data Integration\pentaho-mongodb-plugin-INFL
