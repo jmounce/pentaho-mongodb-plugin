@@ -565,7 +565,7 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
     retval.append( "    " ).append( //$NON-NLS-1$
         XMLHandler.addTagValue( "socket_timeout", getSocketTimeout() ) ); //$NON-NLS-1$
     retval.append( "    " ).append( //$NON-NLS-1$
-        XMLHandler.addTagValue( "use_ssl_socket_factory", isUseSSLSocketFactory() ) ); //$NON-NLS-1$
+        XMLHandler.addTagValue( "auth_ssl", getUseSSLSocketFactory() ) ); //$NON-NLS-1$
     retval.append( "    " ).append( //$NON-NLS-1$
         XMLHandler.addTagValue( "read_preference", getReadPreference() ) ); //$NON-NLS-1$
     retval.append( "    " ).append( //$NON-NLS-1$
@@ -667,10 +667,7 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
     setConnectTimeout( XMLHandler.getTagValue( stepnode, "connect_timeout" ) ); //$NON-NLS-1$
     setSocketTimeout( XMLHandler.getTagValue( stepnode, "socket_timeout" ) ); //$NON-NLS-1$
 
-    String useSSLSocketFactory =  XMLHandler.getTagValue( stepnode, "use_ssl_socket_factory" );
-    if ( !Utils.isEmpty( useSSLSocketFactory ) ) {
-      setUseSSLSocketFactory( useSSLSocketFactory.equalsIgnoreCase( "Y" ) );
-    }
+    setUseSSLSocketFactory( XMLHandler.getTagValue( stepnode, "auth_ssl" ) ); //$NON-NLS-1$
 
     setReadPreference( XMLHandler.getTagValue( stepnode, "read_preference" ) ); //$NON-NLS-1$
     setWriteConcern( XMLHandler.getTagValue( stepnode, "write_concern" ) ); //$NON-NLS-1$
@@ -787,7 +784,7 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
 
     setConnectTimeout( rep.getStepAttributeString( id_step, "connect_timeout" ) ); //$NON-NLS-1$
     setSocketTimeout( rep.getStepAttributeString( id_step, "socket_timeout" ) ); //$NON-NLS-1$
-    setUseSSLSocketFactory( rep.getStepAttributeBoolean( id_step, 0, "use_ssl_socket_factory", false ) );
+    setUseSSLSocketFactory( rep.getStepAttributeString( id_step, "auth_ssl" ) );
     setReadPreference( rep.getStepAttributeString( id_step, "read_preference" ) ); //$NON-NLS-1$
     setWriteConcern( rep.getStepAttributeString( id_step, "write_concern" ) ); //$NON-NLS-1$
     setWTimeout( rep.getStepAttributeString( id_step, "w_timeout" ) ); //$NON-NLS-1$
@@ -900,8 +897,7 @@ public class MongoDbOutputMeta extends MongoDbMeta implements StepMetaInterface 
         getConnectTimeout() );
     rep.saveStepAttribute( id_transformation, id_step, "socket_timeout", //$NON-NLS-1$
         getSocketTimeout() );
-    rep.saveStepAttribute( id_transformation, id_step, "use_ssl_socket_factory",
-        isUseSSLSocketFactory() );
+    rep.saveStepAttribute( id_transformation, id_step, "auth_ssl", getUseSSLSocketFactory() ); //$NON-NLS-1$
     rep.saveStepAttribute( id_transformation, id_step, "read_preference", //$NON-NLS-1$
         getReadPreference() );
     rep.saveStepAttribute( id_transformation, id_step, "write_concern", //$NON-NLS-1$

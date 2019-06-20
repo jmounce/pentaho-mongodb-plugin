@@ -111,9 +111,9 @@ public class MongoDbInputMetaInjectionTest extends BaseMetadataInjectionTest<Mon
         return meta.getSocketTimeout();
       }
     } );
-    check( "USE_SSL_SOCKET_FACTORY", new BooleanGetter() {
-      public boolean get() {
-        return meta.isUseSSLSocketFactory();
+    check( "AUTH_SSL", new StringGetter() {
+      public String get() {
+        return meta.getUseSSLSocketFactory();
       }
     } );
     check( "READ_PREFERENCE", new StringGetter() {

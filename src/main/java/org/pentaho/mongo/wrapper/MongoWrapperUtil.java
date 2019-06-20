@@ -73,8 +73,7 @@ public class MongoWrapperUtil {
     setIfNotNullOrEmpty( propertiesBuilder, MongoProp.AUTH_MECHA, mongoDbMeta.getAuthenticationMechanism()  );
     setIfNotNullOrEmpty( propertiesBuilder, MongoProp.USE_KERBEROS,
         Boolean.toString( mongoDbMeta.getUseKerberosAuthentication() ) );
-    setIfNotNullOrEmpty( propertiesBuilder, MongoProp.useSSL,
-        Boolean.toString( mongoDbMeta.isUseSSLSocketFactory() ) );
+    setIfNotNullOrEmpty( propertiesBuilder, MongoProp.useSSL, boolFromString( mongoDbMeta.getUseSSLSocketFactory() ).toString() );
     if ( mongoDbMeta.getReadPrefTagSets() != null ) {
       StringBuilder tagSet = new StringBuilder();
       for ( String tag : mongoDbMeta.getReadPrefTagSets() ) {
@@ -89,6 +88,16 @@ public class MongoWrapperUtil {
     }
 
     return propertiesBuilder;
+  }
+
+  /**
+   * Returns Boolean.TRUE if equal to: "1", "y", or "true" - otherwise, Boolean.FALSE
+   * @param strValue
+   * @return
+   */
+  private static Boolean boolFromString(String strValue) {
+    String lower = null == strValue ? "" : strValue.toLowerCase();
+    return "y".equals(lower) || "true".equals(lower) || "1".equals(lower);
   }
 
   public static MongoClientWrapper createMongoClientWrapper( MongoProperties.Builder properties, LogChannelInterface log )

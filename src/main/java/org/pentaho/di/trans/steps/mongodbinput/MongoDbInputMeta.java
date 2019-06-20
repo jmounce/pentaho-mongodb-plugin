@@ -135,10 +135,7 @@ public class MongoDbInputMeta extends MongoDbMeta {
       setConnectTimeout( XMLHandler.getTagValue( stepnode, "connect_timeout" ) ); //$NON-NLS-1$
       setSocketTimeout( XMLHandler.getTagValue( stepnode, "socket_timeout" ) ); //$NON-NLS-1$
 
-      String useSSLSocketFactory =  XMLHandler.getTagValue( stepnode, "use_ssl_socket_factory" );
-      if ( !Utils.isEmpty( useSSLSocketFactory ) ) {
-        setUseSSLSocketFactory( useSSLSocketFactory.equalsIgnoreCase( "Y" ) );
-      }
+      setUseSSLSocketFactory( XMLHandler.getTagValue( stepnode, "auth_ssl" ) ); //$NON-NLS-1$
 
       setReadPreference( XMLHandler.getTagValue( stepnode, "read_preference" ) ); //$NON-NLS-1$
 
@@ -278,7 +275,7 @@ public class MongoDbInputMeta extends MongoDbMeta {
     retval.append( "    " ).append( //$NON-NLS-1$
         XMLHandler.addTagValue( "socket_timeout", getSocketTimeout() ) ); //$NON-NLS-1$
     retval.append( "    " ).append( //$NON-NLS-1$
-        XMLHandler.addTagValue( "use_ssl_socket_factory", isUseSSLSocketFactory() ) ); //$NON-NLS-1$
+        XMLHandler.addTagValue( "auth_ssl", getUseSSLSocketFactory() ) ); //$NON-NLS-1$
     retval.append( "    " ).append( //$NON-NLS-1$
         XMLHandler.addTagValue( "read_preference", getReadPreference() ) ); //$NON-NLS-1$
     retval.append( "    " ).append( //$NON-NLS-1$
@@ -339,7 +336,7 @@ public class MongoDbInputMeta extends MongoDbMeta {
       setUseKerberosAuthentication( rep.getStepAttributeBoolean( id_step, "auth_kerberos" ) ); //$NON-NLS-1$
       setConnectTimeout( rep.getStepAttributeString( id_step, "connect_timeout" ) ); //$NON-NLS-1$
       setSocketTimeout( rep.getStepAttributeString( id_step, "socket_timeout" ) ); //$NON-NLS-1$
-      setUseSSLSocketFactory( rep.getStepAttributeBoolean( id_step, 0, "use_ssl_socket_factory", false ) );
+      setUseSSLSocketFactory( rep.getStepAttributeString( id_step, "auth_ssl" ) ); //$NON-NLS-1$
       setReadPreference( rep.getStepAttributeString( id_step, "read_preference" ) ); //$NON-NLS-1$
 
       m_outputJson = rep.getStepAttributeBoolean( id_step, 0, "output_json" ); //$NON-NLS-1$
@@ -403,7 +400,7 @@ public class MongoDbInputMeta extends MongoDbMeta {
       rep.saveStepAttribute( id_transformation, id_step, "auth_kerberos", getUseKerberosAuthentication() );
       rep.saveStepAttribute( id_transformation, id_step, "connect_timeout", getConnectTimeout() ); //$NON-NLS-1$
       rep.saveStepAttribute( id_transformation, id_step, "socket_timeout", getSocketTimeout() ); //$NON-NLS-1$
-      rep.saveStepAttribute( id_transformation, id_step, "use_ssl_socket_factory", isUseSSLSocketFactory() );
+      rep.saveStepAttribute( id_transformation, id_step, "auth_ssl", getUseSSLSocketFactory() ); //$NON-NLS-1$
       rep.saveStepAttribute( id_transformation, id_step, "read_preference", getReadPreference() ); //$NON-NLS-1$
       rep.saveStepAttribute( id_transformation, id_step, 0, "output_json", //$NON-NLS-1$
           m_outputJson );

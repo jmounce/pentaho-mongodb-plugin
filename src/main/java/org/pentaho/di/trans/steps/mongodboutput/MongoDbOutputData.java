@@ -38,12 +38,7 @@ import org.pentaho.mongo.wrapper.MongoClientWrapper;
 import org.pentaho.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.pentaho.mongo.wrapper.cursor.MongoCursorWrapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Data class for the MongoDbOutput step
@@ -666,7 +661,7 @@ public class MongoDbOutputData extends BaseStepData implements StepDataInterface
           ValueMetaInterface vm = inputMeta.getValueMeta( index );
           if ( !vm.isNull( row[ index ] ) ) {
             String jsonDoc = vm.getString( row[ index ] );
-            DBObject docToInsert = (DBObject) JSON.parse( jsonDoc );
+            DBObject docToInsert = BasicDBObject.parse( jsonDoc );
             return docToInsert;
           } else {
             return null;
@@ -687,6 +682,7 @@ public class MongoDbOutputData extends BaseStepData implements StepDataInterface
     }
 
     boolean haveNonNullFields = false;
+
     for ( MongoDbOutputMeta.MongoField field : fieldDefs ) {
       DBObject current = root;
 
@@ -791,7 +787,86 @@ public class MongoDbOutputData extends BaseStepData implements StepDataInterface
       return null; // nothing has been set!
     }
 
+    RemoveEmptyNodes(root);
+
     return root;
+  }
+
+  /*
+    Traverse the entire tree, removing empty object nodes each time through.
+    Record whether we removed anything.
+    When nothing has been removed on an iteration, they are no empty nodes left and we are done.
+   */
+  private static void RemoveEmptyNodes(DBObject root) {
+    if(root instanceof BasicDBObject) {
+      boolean nodesWereRemoved = true;
+      Stack<TraversalItem> toTraverse = new Stack<TraversalItem>();
+      while (nodesWereRemoved) {
+        nodesWereRemoved = false;
+        BasicDBObject curr = (BasicDBObject) root;
+        BasicDBObject parent = null;
+        Object parentKey = null;
+        Object iteratingKey = null;
+        while (curr != null) {
+          if(curr.size() == 0) { // empty object
+            if(parent != null)
+            {
+              parent.remove(parentKey);
+              nodesWereRemoved = true;
+
+              TraversalItem tmp = toTraverse.pop();
+              curr = tmp.curr;
+              parentKey = tmp.parentKey;
+              parent = tmp.parent;
+              iteratingKey = tmp.iteratingKey;
+            }
+          }
+          else
+          {
+            boolean iterationComplete = true;
+            boolean foundCurrentKey;
+            for (Object key : curr.keySet()) {
+              foundCurrentKey = iteratingKey == null || iteratingKey == key;
+              if(foundCurrentKey) {
+                if(iteratingKey != null) {
+                  iteratingKey = null;
+                }
+                else {
+                  Object toEval = curr.get(key);
+                  if (toEval instanceof BasicDBObject) {
+                    TraversalItem item = new TraversalItem(curr, parent, parentKey, key);
+                    toTraverse.push(item);
+
+                    parent = curr;
+                    parentKey = key;
+                    curr = (BasicDBObject) toEval;
+
+                    iterationComplete = false;
+                    break;
+                  }
+                }
+              }
+            }
+            if(iterationComplete) {
+              if(toTraverse.empty()) {
+                curr = null;
+                parent = null;
+                parentKey = null;
+                iteratingKey = null;
+              }
+              else
+              {
+                TraversalItem tmp = toTraverse.pop();
+                curr = tmp.curr;
+                parent = tmp.parent;
+                parentKey = tmp.parentKey;
+                iteratingKey = tmp.iteratingKey;
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   private static boolean setMongoValueFromKettleValue( DBObject mongoObject, Object lookup,
@@ -964,4 +1039,20 @@ public class MongoDbOutputData extends BaseStepData implements StepDataInterface
     return MongoTopLevel.ARRAY;
   }
 
+  /*
+    Used to support post-row empty node removal
+   */
+  private static class TraversalItem {
+    public BasicDBObject curr;
+    public BasicDBObject parent;
+    public Object parentKey;
+    public Object iteratingKey;
+
+    public TraversalItem(BasicDBObject c, BasicDBObject p, Object pk, Object ik) {
+      curr = c;
+      parent = p;
+      parentKey = pk;
+      iteratingKey = ik;
+    }
+  }
 }

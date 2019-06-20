@@ -132,7 +132,7 @@ public class MongoDbInputDialog extends BaseStepDialog implements StepDialogInte
 
   private Button m_executeForEachRowBut;
 
-  private Button m_useSSLSocketFactory;
+  private TextVar m_useSSLSocketFactory;
 
   private final MongoDbInputMeta input;
   /* Only referenced in commented code, commenting also
@@ -255,14 +255,14 @@ public class MongoDbInputDialog extends BaseStepDialog implements StepDialogInte
     props.setLook( useSSLSocketFactoryL );
     useSSLSocketFactoryL.setLayoutData( new FormDataBuilder().left( 0, -margin ).top( lastControl, margin ).right( middle, -margin ).result() );
 
-    m_useSSLSocketFactory = new Button( wConfigComp, SWT.CHECK );
+    m_useSSLSocketFactory = new TextVar( transMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_useSSLSocketFactory );
-    m_useSSLSocketFactory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        input.setChanged();
-      };
-    } );
-    m_useSSLSocketFactory.setLayoutData( new FormDataBuilder().left( middle, 0 ).top( lastControl, margin ).right( 100, 0 ).result() );
+    wPort.addModifyListener( lsMod );
+    FormData fdUseSsl = new FormData();
+    fdUseSsl.left = new FormAttachment( middle, 0 );
+    fdUseSsl.top = new FormAttachment( lastControl, margin );
+    fdUseSsl.right = new FormAttachment( 100, 0 );
+    m_useSSLSocketFactory.setLayoutData( fdUseSsl );
     lastControl = m_useSSLSocketFactory;
 
     // Use all replica set members/mongos check box
@@ -1116,7 +1116,7 @@ public class MongoDbInputDialog extends BaseStepDialog implements StepDialogInte
     wAuthPass.setEnabled( !m_kerberosBut.getSelection() );
     m_connectionTimeout.setText( Const.NVL( meta.getConnectTimeout(), "" ) ); //$NON-NLS-1$
     m_socketTimeout.setText( Const.NVL( meta.getSocketTimeout(), "" ) ); //$NON-NLS-1$
-    m_useSSLSocketFactory.setSelection( meta.isUseSSLSocketFactory() );
+    m_useSSLSocketFactory.setText( Const.NVL( meta.getUseSSLSocketFactory(), "" ) ); //$NON-NLS-1$
     m_readPreference.setText( Const.NVL( meta.getReadPreference(), "" ) ); //$NON-NLS-1$
     m_queryIsPipelineBut.setSelection( meta.getQueryIsPipeline() );
     m_outputAsJson.setSelection( meta.getOutputJson() );
@@ -1169,7 +1169,7 @@ public class MongoDbInputDialog extends BaseStepDialog implements StepDialogInte
     meta.setUseKerberosAuthentication( m_kerberosBut.getSelection() );
     meta.setConnectTimeout( m_connectionTimeout.getText() );
     meta.setSocketTimeout( m_socketTimeout.getText() );
-    meta.setUseSSLSocketFactory( m_useSSLSocketFactory.getSelection() );
+    meta.setUseSSLSocketFactory( m_useSSLSocketFactory.getText() );
     meta.setReadPreference( m_readPreference.getText() );
     meta.setOutputJson( m_outputAsJson.getSelection() );
     meta.setQueryIsPipeline( m_queryIsPipelineBut.getSelection() );

@@ -392,8 +392,64 @@ public class MongoDbOutputTest extends BaseMongoDbStepTest {
 
     DBObject result = kettleRowToMongo( paths, rmi, row, vs, MongoDbOutputData.MongoTopLevel.RECORD, false );
 
-    assertEquals( result.toString(),
-      "{ \"nestedDoc\" : { \"secondNested\" : { \"field1\" : \"value1\"} , \"field2\" : 12}}" );
+    assertEquals( "{ \"nestedDoc\" : { \"secondNested\" : { \"field1\" : \"value1\"} , \"field2\" : 12}}", result.toString() );
+  }
+
+  @Test public void testTopLevelObjectStructureThreeLevelNestedWithEmpty() throws Exception {
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>( 5 );
+
+    MongoDbOutputMeta.MongoField mf = new MongoDbOutputMeta.MongoField();
+    mf.m_incomingFieldName = "field1";
+    mf.m_mongoDocPath = "level1a.level2a.f1";
+    mf.m_useIncomingFieldNameAsMongoFieldName = false;
+    paths.add( mf );
+
+    mf = new MongoDbOutputMeta.MongoField();
+    mf.m_incomingFieldName = "field2";
+    mf.m_mongoDocPath = "level1a.level2b.f2";
+    mf.m_useIncomingFieldNameAsMongoFieldName = false;
+    paths.add( mf );
+
+    mf = new MongoDbOutputMeta.MongoField();
+    mf.m_incomingFieldName = "field3";
+    mf.m_mongoDocPath = "level1a.level2a.f3";
+    mf.m_useIncomingFieldNameAsMongoFieldName = false;
+    paths.add( mf );
+
+    mf = new MongoDbOutputMeta.MongoField();
+    mf.m_incomingFieldName = "field4";
+    mf.m_mongoDocPath = "level1a.level2c.f4";
+    mf.m_useIncomingFieldNameAsMongoFieldName = false;
+    paths.add( mf );
+
+    mf = new MongoDbOutputMeta.MongoField();
+    mf.m_incomingFieldName = "field5";
+    mf.m_mongoDocPath = "level1a.level2c.level3a.f5";
+    mf.m_useIncomingFieldNameAsMongoFieldName = false;
+    paths.add( mf );
+
+    RowMetaInterface rmi = new RowMeta();
+    rmi.addValueMeta( new ValueMetaString( "field1" ) );
+    rmi.addValueMeta( new ValueMetaInteger( "field2" ) );
+    rmi.addValueMeta( new ValueMetaInteger( "field3" ) );
+    rmi.addValueMeta( new ValueMetaInteger( "field4" ) );
+    rmi.addValueMeta( new ValueMetaInteger( "field5" ) );
+
+    Object[] row = new Object[ 5 ];
+    row[ 0 ] = "value1";
+    row[ 1 ] = null;
+    row[ 2 ] = 12L;
+    row[ 3 ] = null;
+    row[ 4 ] = null;
+    VariableSpace vs = new Variables();
+
+    for ( MongoDbOutputMeta.MongoField f : paths ) {
+      f.init( vs );
+    }
+
+    DBObject result = kettleRowToMongo( paths, rmi, row, vs, MongoDbOutputData.MongoTopLevel.RECORD, false );
+
+    assertEquals("{ \"level1a\" : { \"level2a\" : { \"f1\" : \"value1\" , \"f3\" : 12}}}", result.toString());
   }
 
   @Test public void testModifierUpdateWithMultipleModifiersOfSameType() throws Exception {

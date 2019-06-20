@@ -115,7 +115,7 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
   private TextVar m_connectTimeout;
   private TextVar m_socketTimeout;
 
-  private Button m_useSSLSocketFactory;
+  private TextVar m_useSSLSocketFactory;
 
   private CCombo m_dbNameField;
   private Button m_getDBsBut;
@@ -274,14 +274,20 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
     props.setLook( useSSLSocketFactoryL );
     useSSLSocketFactoryL.setLayoutData( new FormDataBuilder().left( 0, -margin ).top( m_portField, margin ).right( middle, -margin ).result() );
 
-    m_useSSLSocketFactory = new Button( wConfigComp, SWT.CHECK );
+    m_useSSLSocketFactory = new TextVar( transMeta, wConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_useSSLSocketFactory );
-    m_useSSLSocketFactory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        m_currentMeta.setChanged();
-      };
+    m_useSSLSocketFactory.addModifyListener( lsMod );
+    // set the tool tip to the contents with any env variables expanded
+    m_useSSLSocketFactory.addModifyListener( new ModifyListener() {
+      @Override public void modifyText( ModifyEvent e ) {
+        m_useSSLSocketFactory.setToolTipText( transMeta.environmentSubstitute( m_useSSLSocketFactory.getText() ) );
+      }
     } );
-    m_useSSLSocketFactory.setLayoutData( new FormDataBuilder().left( middle, 0 ).top( m_portField, margin ).right( 100, 0 ).result() );
+    fd = new FormData();
+    fd.right = new FormAttachment( 100, 0 );
+    fd.top = new FormAttachment( m_portField, margin );
+    fd.left = new FormAttachment( middle, 0 );
+    m_useSSLSocketFactory.setLayoutData( fd );
 
     // Use all replica set members check box
     Label useAllReplicaLab = new Label( wConfigComp, SWT.RIGHT );
@@ -1172,7 +1178,7 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
     meta.setModifierUpdate( m_modifierUpdateBut.getSelection() );
     meta.setConnectTimeout( m_connectTimeout.getText() );
     meta.setSocketTimeout( m_socketTimeout.getText() );
-    meta.setUseSSLSocketFactory( m_useSSLSocketFactory.getSelection() );
+    meta.setUseSSLSocketFactory( m_useSSLSocketFactory.getText() );
     meta.setWriteConcern( m_writeConcern.getText() );
     meta.setWTimeout( m_wTimeout.getText() );
     meta.setJournal( m_journalWritesCheck.getSelection() );
@@ -1279,7 +1285,7 @@ public class MongoDbOutputDialog extends BaseStepDialog implements StepDialogInt
     m_readPreference.setEnabled( m_modifierUpdateBut.getEnabled() && m_modifierUpdateBut.getSelection() );
     m_connectTimeout.setText( Const.NVL( m_currentMeta.getConnectTimeout(), "" ) ); //$NON-NLS-1$
     m_socketTimeout.setText( Const.NVL( m_currentMeta.getSocketTimeout(), "" ) ); //$NON-NLS-1$
-    m_useSSLSocketFactory.setSelection( m_currentMeta.isUseSSLSocketFactory() );
+    m_useSSLSocketFactory.setText( Const.NVL( m_currentMeta.getUseSSLSocketFactory(), "" ) ); //$NON-NLS-1$
     m_writeConcern.setText( Const.NVL( m_currentMeta.getWriteConcern(), "" ) ); //$NON-NLS-1$
     m_wTimeout.setText( Const.NVL( m_currentMeta.getWTimeout(), "" ) ); //$NON-NLS-1$
     m_journalWritesCheck.setSelection( m_currentMeta.getJournal() );

@@ -74,8 +74,11 @@ public abstract class MongoDbMeta extends BaseStepMeta implements StepMetaInterf
   @Injection( name = "TAG_SET" )
   private List<String> m_readPrefTagSets;
 
-  @Injection( name = "USE_SSL_SOCKET_FACTORY" )
-  private boolean m_useSSLSocketFactory;
+  /**
+   * When set ot "1", "y", or "true" use SSL to connect to MongoDB
+   */
+  @Injection( name = "AUTH_SSL" )
+  private String m_useSSLSocketFactory;
 
   /**
    * default = 1 (standalone or primary acknowledges writes; -1 no
@@ -367,11 +370,9 @@ public abstract class MongoDbMeta extends BaseStepMeta implements StepMetaInterf
     this.authenticationMechanism = authenticationMechanism;
   }
 
-  public boolean isUseSSLSocketFactory() {
-    return m_useSSLSocketFactory;
-  }
+  public String getUseSSLSocketFactory() { return m_useSSLSocketFactory; }
 
-  public void setUseSSLSocketFactory( boolean value ) {
+  public void setUseSSLSocketFactory( String value ) {
     this.m_useSSLSocketFactory = value;
   }
 
